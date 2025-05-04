@@ -20,6 +20,7 @@ Tree::Tree(int value) {
         return;
     }
     this->root->value = value;
+    // root->size = 1;
     this->size = 1;
     this->max_degree = 0;
     std::cout << "Tree: Object is created and initialized\n";   
@@ -36,6 +37,7 @@ void Tree::init(node* node, int value) {
     }
     this->root = node;
     this->root->value = value;
+    // root->size = 1;
     this->size = 1;
     this->max_degree = 0;
 };
@@ -50,6 +52,7 @@ void Tree::merge(Tree *rtree, Tree* ltree){
         rtree->root->children.push_back(ltree->root);
         ltree->root->parent = rtree->root;
         rtree->size += ltree->size;
+        rtree->root->size += ltree->root->size;
         rtree->max_degree ++;
         if (ltree->max_degree > rtree->max_degree) {
             rtree->max_degree = ltree->max_degree;
@@ -58,6 +61,7 @@ void Tree::merge(Tree *rtree, Tree* ltree){
         ltree->root->children.push_back(rtree->root);
         rtree->root->parent = ltree->root;
         ltree->size += rtree->size;
+        ltree->root->size += rtree->root->size;
         ltree->max_degree ++;
         if (rtree->max_degree > ltree->max_degree) {
             ltree->max_degree = rtree->max_degree;
@@ -76,9 +80,29 @@ void Tree::delete_tree(node* root){
     delete root;
 }
 
+node* Tree::cut_tree(node *head, int key, int new_key){
+    if (head == nullptr){
+        std::cout << "No node was found\n";
+        return nullptr;
+    }
+    if (head->value == key){
+        head->value = new_key;
+        if (head->parent != nullptr && head->parent->value > head->value){
+            head->parent = nullptr;
+            return head;
+        }
+    } else {
+        for (auto child : head->children){
+            cut_tree(child, key, new_key);
+        }
+    }
+
+}
 
 Tree::~Tree() {
     std::cout << "Tree: Destruction start\n";
+    if (root == nullptr)
+        return;
     delete_tree(root);
     std::cout << "Tree: Destroyed\n";
 }

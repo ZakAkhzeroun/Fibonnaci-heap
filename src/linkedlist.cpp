@@ -17,51 +17,104 @@ DCLL::DCLL(int value) {
     std::cout << "DCLL: Object is created\n";   
 };
 
-void DCLL::push_front(int value, int mark) {
+void DCLL::push_front(int value, int mark, int size) {
     subnode* new_node = new subnode;
     new_node->root = new Tree;
     new_node->root->root = new node;
     if (head == nullptr) {
         head = new_node;
         new_node->root->init(new_node->root->root, value);
+        new_node->root->size = size;
+        new_node->root->root->size = size;
         head->mark = mark;
         head->next = head;
         head->prev = head;
-        size ++;
+        this->size ++;
         return;
     } else {
         new_node->root->init(new_node->root->root, value);
         new_node->mark = mark;
         new_node->next = head;
         new_node->prev = head->prev;
+        new_node->root->size = size;
+        new_node->root->root->size = size;
         head->prev->next = new_node;
         head->prev = new_node;
-        size ++;
+        this->size ++;
     }
 };
 
-void DCLL::push_back(int value, int mark) {
+void DCLL::push_front_node(node* node, int value, int mark, int size) {
+    subnode* new_node = new subnode;
+    new_node->root = new Tree;
+    new_node->root->root = node;
+    new_node->root->root->parent = nullptr;
+    if (head == nullptr) {
+        head = new_node;
+        head->mark = mark;
+        head->next = head;
+        head->prev = head;
+        this->size ++;
+        return;
+    } else {
+        new_node->root->size = size;
+        new_node->root->root->size = size;
+        head->prev->next = new_node;
+        head->prev = new_node;
+        this->size ++;
+    }
+};
+
+
+void DCLL::push_back(int value, int mark, int size) {
     subnode* new_node = new subnode;
     new_node->root = new Tree;
     new_node->root->root = new node;
     if (head == nullptr) {
         head = new_node;
         new_node->root->init(new_node->root->root, value);
+        new_node->root->size = size;
+        new_node->root->root->size = size;
         head->mark = mark;
         head->next = head;
         head->prev = head;
-        size ++;
+        this->size ++;
         return;
     } else {
         new_node->root->init(new_node->root->root, value);
+        new_node->root->size = size;
+        new_node->root->root->size = size;
         new_node->mark = mark;
         new_node->next = head->next;
         new_node->prev = head;
         head->next->prev = new_node;
         head->next = new_node;
-        size ++;
+        this->size ++;
     }
 };
+
+void DCLL::push_back_node(node* node, int value, int mark, int size) {
+    subnode* new_node = new subnode;
+    new_node->root = new Tree;
+    new_node->root->root = node;
+    new_node->root->root->parent = nullptr;
+    if (head == nullptr) {
+        head = new_node;
+        head->mark = mark;
+        head->next = head;
+        head->prev = head;
+        this->size ++;
+        return;
+    } else {
+        new_node->mark = mark;
+        new_node->next = head->next;
+        new_node->prev = head;
+        head->next->prev = new_node;
+        head->next = new_node;
+        this->size ++;
+    }
+};
+
 
 void DCLL::delete_node() {
     subnode* current = head;
@@ -83,9 +136,9 @@ void DCLL::delete_node() {
 
 void DCLL::delete_n(int value){
     subnode* current = head;
-    std::cout << "The value to be deleted is " << value << std::endl;
     int counter = 0;
-    if (size == 1){
+    if (this->size == 1){
+        std::cout << "List is about to end\n";
         delete current->root;
         delete current;
     } else {
@@ -94,7 +147,7 @@ void DCLL::delete_n(int value){
             if (current->root->root->value == value){
                 current->prev->next = current->next;
                 current->next->prev = current->prev;
-                size --;
+                this->size --;
                 return;
             }
             current = current->next;
@@ -106,8 +159,7 @@ void DCLL::delete_n(int value){
 void DCLL::print() {
     subnode* current = head;
     int counter = 0;
-    std::cout << "DCLL: Print start\n";
-    std::cout << "size =  " << size << "\n\n\n\n\n";
+    std::cout << "\nThe size = " << this->size << "\n\n\n\n";
     while (current != nullptr && counter < this->size) {
         current = current->next;
         current->root->print_info();
@@ -133,7 +185,6 @@ void DCLL::merging(DCLL *list) {
                 auto value1 = std::min(temp->root->root->value, temp2->root->root->value);
                 Tree::merge(temp->root, temp2->root);   
                 list->delete_n(value);
-                list->print();
                 if (temp2->root->root->value < temp->root->root->value)
                     temp = temp->next;
             }
@@ -158,19 +209,39 @@ subnode* DCLL::extractmin(DCLL *list){
         }
         tmp = tmp->next;
     }
-    std::cout << "Min = " << out->root->root->value << std::endl;
+    out->root->print_info();
     int value;
     for (auto child : out->root->root->children) {
         value = child->value;
-        std::cout << "Child = " << child->value << std::endl;
         auto mark = child->mark;
-        list->push_front(value, mark);
-        child->parent = nullptr;
+        list->push_front(value, mark, child->size);
     }
-    size--;
     delete_n(Max);
-
     return out;
+}
+
+void DCLL::decrease_key(int key, int new_key){
+    int counter = 0;
+    subnode* current = this->head;
+    if (current == nullptr)
+        return;
+
+    while (counter < this->size) {
+        counter ++;
+        if (current->root->root->value == key) {
+            current->root->root->value = new_key;
+            return;
+        }
+        current = current->next;
+    }
+    counter = 0;
+    current = this->head;
+    node* new_node ;
+    while (counter < this->size) {
+        new_node = Tree::cut_tree(current->root->root, key, new_key);
+        current = current->next;
+        counter++;
+    }
 }
 DCLL::~DCLL(){
     std::cout << "DCLL: Destruction start\n";

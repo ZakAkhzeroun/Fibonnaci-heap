@@ -5,19 +5,16 @@
 int main(void){
     int value = 1;
     DCLL list(value);
-    list.push_back(9, 2);
-    list.push_back(123, 2);
-    list.push_back(210, 2);
-    list.push_back(211, 2);
-    list.push_back(2, 2);
-    list.push_back(2101, 2);
-    list.push_back(111, 2);
-    list.print();
+    list.push_back(9, 2,1);
+    list.push_back(123, 2,1);
+    list.push_back(210, 2,1);
+    list.push_back(211, 2,1);
+    list.push_back(2, 2,1);
+    list.push_back(2101, 2,1);
+    list.push_back(111, 2,1);
     list.merging(&list);
+    list.extractmin(&list);
     list.print();
-    auto a = list.extractmin(&list);
-    list.print();
-
     return 0;
 
 }
